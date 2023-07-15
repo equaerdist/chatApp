@@ -1,0 +1,38 @@
+using Microsoft.EntityFrameworkCore;
+using WebApplication5.Models;
+namespace WebApplication5.Services
+{
+    public class ApplicationContext : DbContext
+    {
+        public DbSet<User> Users { get; set;}= null!;
+        public DbSet<Group> Groups { get; set;} = null!;
+        public DbSet<Message> Messages { get; set; } = null!;
+        public DbSet<UserSettingsForGroup> UserSettingsForGroup {get; set;} = null!;
+        public ApplicationContext(DbContextOptions<ApplicationContext> options) : base(options) {}
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+           modelBuilder.Entity<User>()
+           .HasMany(u => u.UserGroups)
+           .WithOne(ug => ug.User);
+
+           modelBuilder.Entity<Group>()
+           .HasMany(g => g.UsersGroup)
+           .WithOne(ug => ug.Group);
+
+           modelBuilder.Entity<Group>()
+           .HasMany(g => g.UserSettings)
+           .WithOne(us => us.Group)
+           .HasForeignKey(us => us.GroupId);
+           
+           modelBuilder.Entity<User>()
+           .HasMany(u => u.GroupSettings)
+           .WithOne(us => us.User)
+           .HasForeignKey(us => us.UserId);
+
+            modelBuilder.Entity<Group>()
+            .HasMany(g => g.Messages)
+            .WithOne(m => m.CreatingGroup)
+            .HasForeignKey(m => m.GroupId);
+        }
+    }
+}
