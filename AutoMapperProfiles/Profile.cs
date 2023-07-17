@@ -12,6 +12,7 @@ namespace WebApplication5.AutoMapperProfiles
             CreateMap<User, GetUserDto>();
             CreateMap<ReceiveMessageDto, Message>();
             CreateMap<Message, SendMessageDto>();
+            CreateMap<Group, GetGroupDto>();
         }
     }
 }

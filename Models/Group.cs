@@ -17,7 +17,7 @@ namespace WebApplication5.Models
         public GroupSettings Settings { get; set; } = null!;
         public ICollection<UserSettingsForGroup> UserSettings { get; set; } = new List<UserSettingsForGroup>();
         [NotMapped]
-        public ICollection<User> Users { get => UsersGroup.Select(u => u.User).ToList(); }
+        public ICollection<User> Users { get => UsersGroup.Where(ug => ug.IsAdmin is false).Select(ug => ug.User).ToList(); }
         [NotMapped]
         public ICollection<User> Admins { get => UsersGroup.Where(u => u.IsAdmin).Select(u => u.User).ToList(); }
         public DateTime LastMessageTime { get; set; }

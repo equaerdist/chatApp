@@ -1,6 +1,8 @@
 using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Net;
+using System.Reflection;
 using System.Security.Claims;
 using WebApplication5.Dto;
 using WebApplication5.Services.Registration;
@@ -47,7 +49,7 @@ namespace WebApplication5.Controllers
         [HttpGet("{id:int}/groups")]
         public async Task<IActionResult> GetGroupsForUser(int id, string? sortTerm, int pageSize, int page, string? sortOrder)
         {
-            if (User.Claims.First(x => x.Type != "Id").Value != id.ToString()) return Forbid();
+            if (User.Claims.First(x => x.Type == "Id").Value != id.ToString()) return Forbid();
             return Ok(await _repository.GetGroupsForUserByIdAsync(id, sortTerm, page, pageSize, sortOrder));
         }
     }

@@ -1,4 +1,5 @@
 using System.IdentityModel.Tokens.Jwt;
+using System.Net;
 using System.Security.Claims;
 using System.Text;
 using Microsoft.AspNetCore.Authorization;
@@ -38,7 +39,15 @@ namespace WebApplication5.Controllers
         public async Task<IActionResult> GetAuth(GetAuthDto inputData)
         {
                 var user = await _repository.GetUserByNickNameAsync(inputData.Nickname);
-                if(user is null || !_handler.Verify(inputData.Password, user.Password)) return BadRequest(new { errors = ERROR_MESSAGE });
+                if (user is null || !_handler.Verify(inputData.Password, user.Password)) 
+                    return BadRequest(
+                        new ValidationProblemDetails(new Dictionary<string, string[]>() { { "Данные", new[] {ERROR_MESSAGE}}})
+                            {
+                                Title = ERROR_MESSAGE,
+                                Status = (int)HttpStatusCode.BadRequest,
+                                Detail = "Read more in errors"
+                            }
+                        );
                 var claims = new List<Claim>
                 {
                     new(ClaimTypes.NameIdentifier, user.Nickname),

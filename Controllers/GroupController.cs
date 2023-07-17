@@ -11,7 +11,7 @@ namespace WebApplication5.Controllers
     [Authorize]
     [ApiController]
     [Route("api/[controller]")]
-    public class GroupController : Controller 
+    public class GroupController : Controller
     {
         private readonly IGroupRepository _repository;
         private readonly IMapper _mapper;
@@ -37,5 +37,17 @@ namespace WebApplication5.Controllers
             }
             return BadRequest();
         }
+        [HttpGet("{id:int}")]
+        public async Task<IActionResult> GetGroupByIdAync(int id)
+        {
+            var group = await _repository.GetGroupByIdAsync(id);
+            return Ok(_mapper.Map<GetGroupDto>(group));
+        }
+
     }
+    //[HttpGet("{id:int}")]
+    //public async Task<IActionResult> GetMessagesForGroupById(int id)
+    //{
+
+    //}
 }

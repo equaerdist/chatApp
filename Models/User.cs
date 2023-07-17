@@ -15,5 +15,6 @@ namespace WebApplication5.Models
         public string Thumbnail {get; set;} = null!;
         public ICollection<UsersGroup> UserGroups {get; set;} = new List<UsersGroup>();
         public ICollection<UserSettingsForGroup> GroupSettings {get; set;} = new List<UserSettingsForGroup>();
+        public ICollection<Message> Messages { get; set; } = new List<Message>();
     }
 }

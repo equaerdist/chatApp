@@ -13,13 +13,18 @@ using WebApplication5.Services.Hubs;
 using WebApplication5.Services.Middlewares;
 using System.Text;
 using System.IdentityModel.Tokens.Jwt;
+using Newtonsoft.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 var config = builder.Configuration.Get<AppOptions>(u => u.BindNonPublicProperties = true);
 builder.Services.AddLogging();
-builder.Services.AddControllers();
+builder.Services.AddControllers().AddNewtonsoftJson(options =>
+{
+    options.SerializerSettings.ContractResolver = new CamelCasePropertyNamesContractResolver();
+    options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore;
+});
 builder.Services.AddUserRepository<SqlUserRepository>();
 builder.Services.AddRegistrationService<RegistrationService>();
 builder.Services.AddPasswordValidation<DefaultPasswordValidator>();
@@ -47,6 +52,7 @@ var app = builder.Build();
 
 //app.UseHttpsRedirection();
 app.UseCors(opt => { opt.AllowAnyOrigin(); opt.AllowAnyHeader(); });
+app.UseMiddleware<ClientErrorHandler>();
 app.UseAuthentication();
 app.UseAuthorization();
 app.UseMiddleware<GlobalExceptionHandler>();

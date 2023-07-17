@@ -9,5 +9,7 @@ namespace WebApplication5.Services.Repository
         Task AddGroupAsync(Group newGroup);
         Task DeleteGroupAsync(Group oldGroup);
         Task SaveChangesAsync();
+        Task<bool> GroupContainsUser(int userId, int groupId);
+        Task<IEnumerable<Message>> GetMessagesForGroupByIdAsync(int id, int pageSize, int page);
     }
 }

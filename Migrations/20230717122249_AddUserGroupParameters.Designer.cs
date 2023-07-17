@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using WebApplication5.Services;
@@ -11,9 +12,11 @@ using WebApplication5.Services;
 namespace WebApplication5.Migrations
 {
     [DbContext(typeof(ApplicationContext))]
-    partial class ApplicationContextModelSnapshot : ModelSnapshot
+    [Migration("20230717122249_AddUserGroupParameters")]
+    partial class AddUserGroupParameters
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -65,6 +68,9 @@ namespace WebApplication5.Migrations
                     b.Property<DateTime>("CreateDate")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<string>("From")
+                        .HasColumnType("text");
+
                     b.Property<int>("GroupId")
                         .HasColumnType("integer");
 
@@ -72,14 +78,9 @@ namespace WebApplication5.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<int>("UserId")
-                        .HasColumnType("integer");
-
                     b.HasKey("Id");
 
                     b.HasIndex("GroupId");
-
-                    b.HasIndex("UserId");
 
                     b.ToTable("Messages");
                 });
@@ -170,7 +171,7 @@ namespace WebApplication5.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("UsersGroups");
+                    b.ToTable("UsersGroup");
                 });
 
             modelBuilder.Entity("WebApplication5.Models.Group", b =>
@@ -209,15 +210,7 @@ namespace WebApplication5.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("WebApplication5.Models.User", "Creator")
-                        .WithMany("Messages")
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.Navigation("CreatingGroup");
-
-                    b.Navigation("Creator");
                 });
 
             modelBuilder.Entity("WebApplication5.Models.UserSettingsForGroup", b =>
@@ -270,8 +263,6 @@ namespace WebApplication5.Migrations
             modelBuilder.Entity("WebApplication5.Models.User", b =>
                 {
                     b.Navigation("GroupSettings");
-
-                    b.Navigation("Messages");
 
                     b.Navigation("UserGroups");
                 });

@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using WebApplication5.Services;
@@ -11,9 +12,11 @@ using WebApplication5.Services;
 namespace WebApplication5.Migrations
 {
     [DbContext(typeof(ApplicationContext))]
-    partial class ApplicationContextModelSnapshot : ModelSnapshot
+    [Migration("20230717125059_AddUserGroupParametersv4")]
+    partial class AddUserGroupParametersv4
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -210,7 +213,7 @@ namespace WebApplication5.Migrations
                         .IsRequired();
 
                     b.HasOne("WebApplication5.Models.User", "Creator")
-                        .WithMany("Messages")
+                        .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -270,8 +273,6 @@ namespace WebApplication5.Migrations
             modelBuilder.Entity("WebApplication5.Models.User", b =>
                 {
                     b.Navigation("GroupSettings");
-
-                    b.Navigation("Messages");
 
                     b.Navigation("UserGroups");
                 });
