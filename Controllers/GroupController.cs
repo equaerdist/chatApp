@@ -15,27 +15,22 @@ namespace WebApplication5.Controllers
     {
         private readonly IGroupRepository _repository;
         private readonly IMapper _mapper;
-        private readonly IUserRepository _userRepository;
+        private readonly IMessageRepository _messageRepository;
 
-        public GroupController(IGroupRepository rep, IMapper mapper, IUserRepository userRep)
+        public GroupController(IGroupRepository rep, IMapper mapper, IMessageRepository messageRep)
         {
             _repository = rep;
             _mapper = mapper;
-            _userRepository = userRep;
+            _messageRepository = messageRep;
         }
         [HttpPost]
         public async Task<IActionResult> CreateGroup(AddGroupDto newGroup)
         {
             var groupForRepo = _mapper.Map<Group>(newGroup);
-            var creatorNickname = User.Claims.First(x => x.Type == ClaimTypes.NameIdentifier).Value;
-            var creator = await _userRepository.GetUserByNickNameAsync(creatorNickname);
-            if (creator is not null)
-            {
-                groupForRepo.UsersGroup.Add(new UsersGroup() { Group = groupForRepo, IsAdmin = true, User = creator });
-                await _repository.AddGroupAsync(groupForRepo);
-                return NoContent();
-            }
-            return BadRequest();
+            var creatorId = int.Parse(User.Claims.First(x => x.Type == "Id").Value);
+            groupForRepo.UsersGroup.Add(new UsersGroup() { Group = groupForRepo, IsAdmin = true, UserId = creatorId });
+            await _repository.AddGroupAsync(groupForRepo);
+            return NoContent();
         }
         [HttpGet("{id:int}")]
         public async Task<IActionResult> GetGroupByIdAync(int id)
@@ -43,11 +38,33 @@ namespace WebApplication5.Controllers
             var group = await _repository.GetGroupByIdAsync(id);
             return Ok(_mapper.Map<GetGroupDto>(group));
         }
-
+        [HttpGet("messages/{id:int}")]
+        public async Task<IActionResult> GetMessagesForGroupById(int id, int pageSize, int page)
+        {
+            var userId = int.Parse(User.Claims.First(x => x.Type == "Id").Value);
+            if (await _repository.GroupContainsUser(userId, id))
+            {
+                var messages = await _repository.GetMessagesForGroupByIdAsync(id, pageSize, page);
+                var responseMessages = _mapper.Map<IEnumerable<GetMessageDto>>(messages);
+                return Ok(responseMessages);
+            }
+            return Forbid();
+        }
+        [HttpPost("{messages}")]
+        public async Task<IActionResult> AddMessageToGroup(AddMessageDto message)
+        {
+            var userId = int.Parse(User.Claims.First(x => x.Type == "Id").Value);
+            if (await _repository.GroupContainsUser(userId, message.GroupId))
+            {
+                var messageForRepo = _mapper.Map<Message>(message);
+                messageForRepo.UserId = userId;
+                messageForRepo.CreateDate = DateTime.UtcNow;
+                await _messageRepository.AddMessageToTheGroupAsync(messageForRepo);
+                await _messageRepository.SaveChangesAsync();
+                return NoContent();
+            }
+            return Forbid(); 
+        }
     }
-    //[HttpGet("{id:int}")]
-    //public async Task<IActionResult> GetMessagesForGroupById(int id)
-    //{
-
-    //}
+    
 }

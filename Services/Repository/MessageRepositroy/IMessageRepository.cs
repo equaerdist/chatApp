@@ -6,5 +6,6 @@ namespace WebApplication5.Services.Repository
     {
         Task AddMessageToTheGroupAsync(Message message);
         Task<IEnumerable<Message>> GetMessagesForGroupByIdAsync(int id);
+        Task SaveChangesAsync();
     }
 }

@@ -36,6 +36,7 @@ namespace WebApplication5.Services.Repository
             var messages = await _context.Messages
                 .Include(m => m.Creator)
                 .Where(m => m.GroupId == id)
+                .OrderBy(m => m.CreateDate)
                 .Skip((page - 1) * pageSize)
                 .Take(pageSize)
                 .ToListAsync();
