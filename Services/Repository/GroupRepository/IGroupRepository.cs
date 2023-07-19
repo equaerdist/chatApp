@@ -1,3 +1,4 @@
+using System.Collections;
 using WebApplication5.Models;
 
 namespace WebApplication5.Services.Repository
@@ -11,5 +12,6 @@ namespace WebApplication5.Services.Repository
         Task SaveChangesAsync();
         Task<bool> GroupContainsUser(int userId, int groupId);
         Task<IEnumerable<Message>> GetMessagesForGroupByIdAsync(int id, int pageSize, int page);
+        Task<IEnumerable<Group>> GetGroupBySearchTermAsync(string searchTerm);
     }
 }

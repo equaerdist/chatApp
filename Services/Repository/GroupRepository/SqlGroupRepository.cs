@@ -26,9 +26,16 @@ namespace WebApplication5.Services.Repository
         public async Task<Group?> GetGroupByIdAsync(int id)
         {
             return await _context.Groups
-                .Include(g => g.Messages)
-                .ThenInclude(m => m.Creator)
                 .FirstOrDefaultAsync(g => g.Id == id);
+        }
+
+        public async Task<IEnumerable<Group>> GetGroupBySearchTermAsync(string searchTerm)
+        {
+           return await _context.Groups
+                .Where(g => g.Name.ToLower().Contains(searchTerm.ToLower())
+                || g.Description.ToLower().Contains(searchTerm.ToLower()))
+                .Take(5)
+                .ToListAsync();
         }
 
         public async Task<IEnumerable<Message>> GetMessagesForGroupByIdAsync(int id, int pageSize, int page)

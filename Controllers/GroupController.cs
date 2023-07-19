@@ -27,6 +27,7 @@ namespace WebApplication5.Controllers
         public async Task<IActionResult> CreateGroup(AddGroupDto newGroup)
         {
             var groupForRepo = _mapper.Map<Group>(newGroup);
+            if (groupForRepo.Thumbnail is null) groupForRepo.Thumbnail = "user.png";
             var creatorId = int.Parse(User.Claims.First(x => x.Type == "Id").Value);
             groupForRepo.UsersGroup.Add(new UsersGroup() { Group = groupForRepo, IsAdmin = true, UserId = creatorId });
             await _repository.AddGroupAsync(groupForRepo);
@@ -38,7 +39,7 @@ namespace WebApplication5.Controllers
             var group = await _repository.GetGroupByIdAsync(id);
             return Ok(_mapper.Map<GetGroupDto>(group));
         }
-        [HttpGet("messages/{id:int}")]
+        [HttpGet("{id:int}/messages")]
         public async Task<IActionResult> GetMessagesForGroupById(int id, int pageSize, int page)
         {
             var userId = int.Parse(User.Claims.First(x => x.Type == "Id").Value);
@@ -50,20 +51,28 @@ namespace WebApplication5.Controllers
             }
             return Forbid();
         }
-        [HttpPost("{messages}")]
-        public async Task<IActionResult> AddMessageToGroup(AddMessageDto message)
+        [HttpPost("{id:int}/messages")]
+        public async Task<IActionResult> AddMessageToGroup(AddMessageDto message, int id)
         {
             var userId = int.Parse(User.Claims.First(x => x.Type == "Id").Value);
-            if (await _repository.GroupContainsUser(userId, message.GroupId))
+            if (await _repository.GroupContainsUser(userId, id))
             {
-                var messageForRepo = _mapper.Map<Message>(message);
+                var messageForRepo = _mapper.Map<Message>(message); 
                 messageForRepo.UserId = userId;
                 messageForRepo.CreateDate = DateTime.UtcNow;
+                messageForRepo.GroupId = id;
                 await _messageRepository.AddMessageToTheGroupAsync(messageForRepo);
                 await _messageRepository.SaveChangesAsync();
-                return NoContent();
+                var responseMessage = _mapper.Map<GetMessageDto>(messageForRepo);
+                return Ok(responseMessage);
             }
             return Forbid(); 
+        }
+        [HttpGet]
+        public async Task<IActionResult> GetGroupsBySearchTerm(string searchTerm)
+        {
+            var groups = await _repository.GetGroupBySearchTermAsync(searchTerm);
+            return Ok(groups);
         }
     }
     
