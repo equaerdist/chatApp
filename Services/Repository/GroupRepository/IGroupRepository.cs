@@ -13,5 +13,6 @@ namespace WebApplication5.Services.Repository
         Task<bool> GroupContainsUser(int userId, int groupId);
         Task<IEnumerable<Message>> GetMessagesForGroupByIdAsync(int id, int pageSize, int page);
         Task<IEnumerable<Group>> GetGroupBySearchTermAsync(string searchTerm);
+        Task<IEnumerable<UsersGroup>?> GetOnlineUsersForGroup(int groupId);
     }
 }

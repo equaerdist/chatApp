@@ -50,6 +50,14 @@ namespace WebApplication5.Services.Repository
             return messages;
         }
 
+        public async Task<IEnumerable<UsersGroup>?> GetOnlineUsersForGroup(int groupId)
+        {
+            var onlineUsers = await _context.UsersGroups
+                .Where(ug => ug.GroupId == groupId && ug.User.IsOnline)
+                .ToListAsync();
+            return onlineUsers;
+        }
+
         public async Task<IEnumerable<User>?> GetUsersInGroupByIdAsync(int id, int pageSize, int page)
         {
             var users = await _context.UsersGroups

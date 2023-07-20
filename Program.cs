@@ -50,7 +50,23 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJw
         ValidateIssuerSigningKey = true,
         IssuerSigningKey = config.Key,
     };
-    options.Events = new JwtBearerEvents { OnAuthenticationFailed = (context) => { Console.WriteLine(context.Exception); return Task.CompletedTask; } };
+    options.Events = new JwtBearerEvents
+    {
+        OnMessageReceived = context =>
+            {
+                var path = context.HttpContext.Request.Path;
+                var accessToken = context.HttpContext.Request.Query["access_token"];
+                if (!string.IsNullOrEmpty(accessToken) && path.StartsWithSegments("/chat"))
+                {
+                    context.Token = accessToken;
+                }
+                return Task.CompletedTask;
+            },
+        OnAuthenticationFailed = context =>
+        {
+            throw new Exception(context.Exception.Message);
+        }
+    };
     });
 builder.Services.AddAuthorization();
 var app = builder.Build();
@@ -62,7 +78,7 @@ app.UseMiddleware<ClientErrorHandler>();
 app.UseAuthentication();
 app.UseAuthorization();
 app.UseMiddleware<GlobalExceptionHandler>();
-app.MapHub<UserHub>("chat");
+app.MapHub<UserHub>("/chat");
 app.MapControllers();
 
 app.Run();
