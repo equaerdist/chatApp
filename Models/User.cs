@@ -13,6 +13,7 @@ namespace WebApplication5.Models
         public DateTime RegistrationDate {get;set;}
         public string Password {get;set;} = null!;
         public string Thumbnail {get; set;} = null!;
+        public bool IsOnline { get; set;}
         public ICollection<UsersGroup> UserGroups {get; set;} = new List<UsersGroup>();
         public ICollection<UserSettingsForGroup> GroupSettings {get; set;} = new List<UserSettingsForGroup>();
         public ICollection<Message> Messages { get; set; } = new List<Message>();

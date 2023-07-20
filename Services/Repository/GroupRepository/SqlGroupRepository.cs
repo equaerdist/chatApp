@@ -50,6 +50,18 @@ namespace WebApplication5.Services.Repository
             return messages;
         }
 
+        public async Task<IEnumerable<User>?> GetUsersInGroupByIdAsync(int id, int pageSize, int page)
+        {
+            var users = await _context.UsersGroups
+                .Where(ug => ug.GroupId == id)
+                .Include(ug => ug.User)
+                .Select(ug => ug.User)
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+            return users;
+        }
+
         public async Task<bool> GroupContainsUser(int userId, int groupId)
         {
            var user = await _context.UsersGroups.FirstOrDefaultAsync(ug => ug.GroupId == groupId && ug.UserId == userId);

@@ -5,7 +5,7 @@ namespace WebApplication5.Services.Repository
 {
     public interface IGroupRepository
     {
-        //Task<IEnumerable<User>?> GetUsersInGroupByIdAsync(int id);
+        Task<IEnumerable<User>?> GetUsersInGroupByIdAsync(int id, int pageSize, int page);
         Task<Group?> GetGroupByIdAsync(int id);
         Task AddGroupAsync(Group newGroup);
         Task DeleteGroupAsync(Group oldGroup);

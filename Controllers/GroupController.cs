@@ -1,10 +1,14 @@
 using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Net;
 using System.Security.Claims;
 using WebApplication5.Dto;
+using WebApplication5.Exceptions;
 using WebApplication5.Models;
+using WebApplication5.Services.GroupManager;
 using WebApplication5.Services.Repository;
+using WebApplication5.Services.Repository.UserGroupsRepository;
 
 namespace WebApplication5.Controllers
 {
@@ -16,12 +20,16 @@ namespace WebApplication5.Controllers
         private readonly IGroupRepository _repository;
         private readonly IMapper _mapper;
         private readonly IMessageRepository _messageRepository;
+        private readonly IUserGroupsRepository _userGroupsRepository;
+        private readonly IGroupManager _manager;
 
-        public GroupController(IGroupRepository rep, IMapper mapper, IMessageRepository messageRep)
+        public GroupController(IGroupRepository rep, IMapper mapper, IMessageRepository messageRep, IUserGroupsRepository userGroupsRep, IGroupManager manager)
         {
             _repository = rep;
             _mapper = mapper;
             _messageRepository = messageRep;
+            _userGroupsRepository = userGroupsRep;
+            _manager = manager;
         }
         [HttpPost]
         public async Task<IActionResult> CreateGroup(AddGroupDto newGroup)
@@ -73,6 +81,26 @@ namespace WebApplication5.Controllers
         {
             var groups = await _repository.GetGroupBySearchTermAsync(searchTerm);
             return Ok(groups);
+        }
+        [HttpGet("{groupId:int}/manage")]
+        public async Task<IActionResult> ManageUserToTheGroup(int groupId, string action)
+        {
+            var userId = int.Parse(User.Claims.First(x => x.Type == "Id").Value);
+            try
+            {
+                if (string.IsNullOrEmpty(action) || action == "enter")
+                    await _manager.AddUserToGroup(groupId, userId);
+                else
+                    await _manager.DeleteUserFromGroup(groupId, userId);
+                return NoContent();
+            }
+            catch (GroupManagerException ex)
+            {
+                return BadRequest(
+                    new ValidationProblemDetails(new Dictionary<string, string[]> { { "Группа", new[] { ex.Message } } })
+                    { Detail = "Просмотрите errors для пдоробностей", Title = "Ошибка при проверке логических данных" });
+            }
+            
         }
     }
     

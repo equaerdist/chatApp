@@ -14,6 +14,9 @@ using WebApplication5.Services.Middlewares;
 using System.Text;
 using System.IdentityModel.Tokens.Jwt;
 using Newtonsoft.Json.Serialization;
+using WebApplication5.Services.Repository.UserGroupsRepository;
+using WebApplication5.Services.GroupManager;
+using Microsoft.AspNetCore.SignalR;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -32,9 +35,12 @@ builder.Services.AddSingleton(typeof(AppOptions), config);
 builder.Services.AddDbContext<ApplicationContext>(options => options.UseNpgsql(config.ConnectionString));
 builder.Services.AddAutoMapper(typeof(AutoMapperProfile));
 builder.Services.AddSignalR();
+builder.Services.AddUserGroupsRepository<SqlUserGroupsRepository>();
 builder.Services.AddGroupRepository<SqlGroupRepository>();
+builder.Services.AddGroupManager<GroupManager>();
 builder.Services.AddMessageRepository<SqlMessageRepository>();
 builder.Services.AddPasswordHandler<BcryptPasswordHandler>();
+builder.Services.AddSingleton<IUserIdProvider, CustomIdProvider>();
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(options => {
     options.TokenValidationParameters = new TokenValidationParameters()
     {
@@ -56,7 +62,7 @@ app.UseMiddleware<ClientErrorHandler>();
 app.UseAuthentication();
 app.UseAuthorization();
 app.UseMiddleware<GlobalExceptionHandler>();
-app.MapHub<ChatHub>("chat");
+app.MapHub<UserHub>("chat");
 app.MapControllers();
 
 app.Run();

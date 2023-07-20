@@ -7,6 +7,7 @@ using System.Security.Claims;
 using WebApplication5.Dto;
 using WebApplication5.Services.Registration;
 using WebApplication5.Services.Repository;
+using WebApplication5.Services.Repository.UserGroupsRepository;
 
 namespace WebApplication5.Controllers 
 {
@@ -19,12 +20,14 @@ namespace WebApplication5.Controllers
         private readonly IRegistrationService _registrationServce;
         private readonly IUserRepository _repository;
         private readonly IMapper _mapper;
+        private readonly IUserGroupsRepository _userGroupRepository;
 
-        public UserController(IRegistrationService register, IUserRepository rep, IMapper mapper)
+        public UserController(IRegistrationService register, IUserRepository rep, IMapper mapper, IUserGroupsRepository userGroup)
         {
             _registrationServce = register;
             _repository = rep;
             _mapper = mapper;
+            _userGroupRepository = userGroup;
         }
         [HttpPost]
         public async Task<IActionResult> AddUserAsync(AddUserDto newUser)
@@ -51,6 +54,14 @@ namespace WebApplication5.Controllers
         {
             if (User.Claims.First(x => x.Type == "Id").Value != id.ToString()) return Forbid();
             return Ok(await _repository.GetGroupsForUserByIdAsync(id, sortTerm, page, pageSize, sortOrder));
+        }
+        [Authorize]
+        [HttpGet("{id:int}/groups/{groupId:int}")]
+        public async Task<IActionResult> GetGroupInfoForUser(int id, int groupId)
+        {
+            if (User.Claims.First(x => x.Type == "Id").Value != id.ToString()) return Forbid();
+            var ug = await _userGroupRepository.GetAsync(id, groupId);
+            return Ok(ug);
         }
     }
 }

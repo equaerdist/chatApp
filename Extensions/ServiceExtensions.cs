@@ -1,6 +1,9 @@
 using WebApplication5.Services.Repository;
 using WebApplication5.Services.Registration;
 using WebApplication5.Services.Passwords;
+using WebApplication5.Services.Repository.UserGroupsRepository;
+using WebApplication5.Services.GroupManager;
+
 namespace WebApplication5.Extensions 
 {
     public static class ServiceExtensions 
@@ -38,6 +41,17 @@ namespace WebApplication5.Extensions
             services.AddScoped<IMessageRepository, T>();
             return services;
         }
+        public static IServiceCollection AddUserGroupsRepository<T>(this IServiceCollection services) where T : class, IUserGroupsRepository
+        {
+            services.AddScoped<IUserGroupsRepository, T>();
+            return services;
+        }
+        public static IServiceCollection AddGroupManager<T>(this IServiceCollection services) where T : class, IGroupManager
+        {
+            services.AddScoped<IGroupManager, T>();
+            return services;
+        }
+
 
     }
 }
