@@ -22,14 +22,23 @@ namespace WebApplication5.Controllers
         private readonly IMessageRepository _messageRepository;
         private readonly IUserGroupsRepository _userGroupsRepository;
         private readonly IGroupManager _manager;
+        private readonly ILogger<GroupController> _logger;
 
-        public GroupController(IGroupRepository rep, IMapper mapper, IMessageRepository messageRep, IUserGroupsRepository userGroupsRep, IGroupManager manager)
+        public GroupController
+        (
+            IGroupRepository rep, 
+            IMapper mapper,
+            IMessageRepository messageRep, 
+            IUserGroupsRepository userGroupsRep, 
+            IGroupManager manager,
+            ILogger<GroupController> logger)
         {
             _repository = rep;
             _mapper = mapper;
             _messageRepository = messageRep;
             _userGroupsRepository = userGroupsRep;
             _manager = manager;
+            _logger = logger;
         }
         [HttpPost]
         public async Task<IActionResult> CreateGroup(AddGroupDto newGroup)
@@ -89,9 +98,15 @@ namespace WebApplication5.Controllers
             try
             {
                 if (string.IsNullOrEmpty(action) || action == "enter")
+                {
                     await _manager.AddUserToGroup(groupId, userId);
+                    _logger.LogInformation($"user вошел в чат {groupId}");
+                }
                 else
+                {
                     await _manager.DeleteUserFromGroup(groupId, userId);
+                    _logger.LogInformation($"user вышел из чата {groupId}");
+                }
                 return NoContent();
             }
             catch (GroupManagerException ex)

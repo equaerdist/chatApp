@@ -9,6 +9,6 @@ namespace WebApplication5.Dto
         public GetUserDto Creator { get; set; } = null!;
         public int UserId { get; set; }
         public DateTime CreateDate { get; set; }
-
+        public int GroupId { get; set; }   
     }
 }
