@@ -6,6 +6,7 @@ namespace WebApplication5
 {
     public class AppOptions
     {
+        public string SeqApiKey { get; set; } = string.Empty;
         private string secret_key_auth {get; set;} = string.Empty;
         public string ConnectionString { get; set; } = string.Empty;
         public string Issuer {get; set;} = string.Empty;

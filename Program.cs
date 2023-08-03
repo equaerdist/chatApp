@@ -22,8 +22,15 @@ using Serilog;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
+
 var config = builder.Configuration.Get<AppOptions>(u => u.BindNonPublicProperties = true);
-builder.Services.AddLogging(opt => opt.AddSerilog());
+builder.Host.UseSerilog((ct, lc) => { lc
+    .ReadFrom
+    .Configuration(builder.Configuration)
+    .Enrich.WithMemoryUsage()
+    .WriteTo.Seq("http://localhost:5341", apiKey: config.SeqApiKey)
+    .Enrich.WithProcessId(); });
+builder.Services.AddLogging();
 builder.Services.AddControllers().AddNewtonsoftJson(options =>
 {
     options.SerializerSettings.ContractResolver = new CamelCasePropertyNamesContractResolver();
@@ -77,6 +84,7 @@ var app = builder.Build();
 
 
 //app.UseHttpsRedirection();
+app.UseSerilogRequestLogging();
 app.UseCors(opt => { opt.AllowAnyOrigin(); opt.AllowAnyHeader(); opt.AllowAnyMethod(); });
 app.UseMiddleware<GlobalExceptionHandler>();
 app.UseMiddleware<ClientErrorHandler>();
