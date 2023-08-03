@@ -7,9 +7,9 @@ namespace WebApplication5.Dto
     {
         [MaxLength(100)]
         [MinLength(3)]
-        public string? Name { get; set; } = null!;
+        public string Name { get; set; } = null!;
         public string? Description { get; set; }
         public string? Thumbnail {get;set;}
-        public GroupSettings Settings {get; set;} = null!;
+        public GroupSettings Settings {get; set;} = new GroupSettings() { IsPrivate = false, MaxUsersAmount = 0, MessagesOnlyForAdmins = false};
     }
 }

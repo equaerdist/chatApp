@@ -17,17 +17,19 @@ using Newtonsoft.Json.Serialization;
 using WebApplication5.Services.Repository.UserGroupsRepository;
 using WebApplication5.Services.GroupManager;
 using Microsoft.AspNetCore.SignalR;
+using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 var config = builder.Configuration.Get<AppOptions>(u => u.BindNonPublicProperties = true);
-builder.Services.AddLogging();
+builder.Services.AddLogging(opt => opt.AddSerilog());
 builder.Services.AddControllers().AddNewtonsoftJson(options =>
 {
     options.SerializerSettings.ContractResolver = new CamelCasePropertyNamesContractResolver();
     options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore;
 });
+
 builder.Services.AddUserRepository<SqlUserRepository>();
 builder.Services.AddRegistrationService<RegistrationService>();
 builder.Services.AddPasswordValidation<DefaultPasswordValidator>();
@@ -62,10 +64,12 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJw
                 }
                 return Task.CompletedTask;
             },
-        OnAuthenticationFailed = context =>
+        OnAuthenticationFailed = (context) =>
         {
-            throw new Exception(context.Exception.Message);
+            Console.WriteLine(context.Exception);
+            return Task.CompletedTask;
         }
+ 
     };
     });
 builder.Services.AddAuthorization();
@@ -73,11 +77,11 @@ var app = builder.Build();
 
 
 //app.UseHttpsRedirection();
-app.UseCors(opt => { opt.AllowAnyOrigin(); opt.AllowAnyHeader(); });
+app.UseCors(opt => { opt.AllowAnyOrigin(); opt.AllowAnyHeader(); opt.AllowAnyMethod(); });
+app.UseMiddleware<GlobalExceptionHandler>();
 app.UseMiddleware<ClientErrorHandler>();
 app.UseAuthentication();
 app.UseAuthorization();
-app.UseMiddleware<GlobalExceptionHandler>();
 app.MapHub<UserHub>("/chat");
 app.MapControllers();
 

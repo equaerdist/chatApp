@@ -32,7 +32,8 @@ namespace WebApplication5.Controllers
         public async Task<IActionResult> CheckAuth()
         {
             await Task.Delay(1);
-            return Ok();
+            var user = User.Claims.First(x => x.Type == ClaimTypes.NameIdentifier).Value;
+            return Ok(new {nickname = user});
         }
 
         [HttpPost]

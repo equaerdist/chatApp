@@ -14,9 +14,10 @@ namespace WebApplication5.Services.GroupManager
         public async Task AddUserToGroup(int groupId, int userId)
         {
             var userGroupFromRepo = await _repository.GetAsync(userId, groupId);
+            var group = await _groupRepository.GetGroupByIdAsync(groupId);
             if (userGroupFromRepo is not null)
             {
-                if (await _groupRepository.GetGroupByIdAsync(groupId) is not null)
+                if (group is not null)
                     throw new GroupManagerException("Вы уже состоите в группе");
                 throw new GroupManagerException("Такой группы не существует");
             }

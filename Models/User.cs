@@ -17,5 +17,11 @@ namespace WebApplication5.Models
         public ICollection<UsersGroup> UserGroups {get; set;} = new List<UsersGroup>();
         public ICollection<UserSettingsForGroup> GroupSettings {get; set;} = new List<UserSettingsForGroup>();
         public ICollection<Message> Messages { get; set; } = new List<Message>();
+        public override bool Equals(object? obj)
+        {
+            if (obj is not User) throw new ArgumentException();
+            var user = (User)obj;
+            return (user.FullName == FullName && user.Nickname == Nickname);
+        }
     }
 }

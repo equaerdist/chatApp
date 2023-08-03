@@ -44,11 +44,14 @@ namespace WebApplication5.Controllers
         public async Task<IActionResult> CreateGroup(AddGroupDto newGroup)
         {
             var groupForRepo = _mapper.Map<Group>(newGroup);
-            if (groupForRepo.Thumbnail is null) groupForRepo.Thumbnail = "user.png";
+            groupForRepo.Thumbnail ??= "user.png";
             var creatorId = int.Parse(User.Claims.First(x => x.Type == "Id").Value);
             groupForRepo.UsersGroup.Add(new UsersGroup() { Group = groupForRepo, IsAdmin = true, UserId = creatorId });
+            groupForRepo.RegistrationDate = DateTime.UtcNow;
             await _repository.AddGroupAsync(groupForRepo);
-            return NoContent();
+            await _repository.SaveChangesAsync();
+            var groupForResponse = _mapper.Map<GetGroupDto>(groupForRepo);
+            return Ok(groupForResponse);
         }
         [HttpGet("{id:int}")]
         public async Task<IActionResult> GetGroupByIdAync(int id)
